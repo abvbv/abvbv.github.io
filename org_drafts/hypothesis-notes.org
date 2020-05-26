@@ -1,0 +1,27 @@
+#+html_doctype: html5
+#+title: Hypothesis Notes
+#+date: <2020-05-18 Mon 18:40>
+#+filetags: python
+I want to write several posts on solving various Leetcode problems. There I need to benchmark different solutions. And for that I need to have test cases. I could scrape them from Leetcode itself, but I thought it would be a perfect moment to learn [[https://hypothesis.readthedocs.io/en/latest/][Hypothesis]], that has already been on my radar for several years.
+
+This post is basically a summary of the documentation.
+
+* What's Hypothesis?
+#+begin_quote
+Hypothesis is a Python library for creating unit tests which are simpler to write and more powerful when run, finding edge cases in your code you wouldn’t have thought to look for.
+#+end_quote
+
+#+begin_quote
+Hypothesis lets you write tests which instead look like this:
+
+    1. For all data matching some specification. (Instead of setting up some data manually.)
+    2. Perform some operations on the data.
+    3. Assert something about the result.
+
+This is often called property-based testing, and was popularised by the Haskell library [[https://hackage.haskell.org/package/QuickCheck][Quickcheck]].
+#+end_quote
+
+* Quick start guide
+
+* Hypothesis Internals
+There's a [[https://news.ycombinator.com/item?id=15150162][comment]] on HN by [[https://www.drmaciver.com/][David MacIver]], the author of Hypothesis, comparing the project to QuickCheck, a Haskell project, that originally was an inspiration to David.

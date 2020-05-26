@@ -1,0 +1,182 @@
+#+html_doctype: html5
+#+title: Leetcode: Check If a String Can Break Another String
+#+date: <2020-05-12 Tue 22:28>
+#+filetags: leetcode python permutations
+In this post we're going to solve a medium Leetcode problem called "[[https://leetcode.com/problems/check-if-a-string-can-break-another-string/][Check If a String Can Break Another String]]", number 1433. It's nothing special, I just randomly clicked on a link and got there.
+* Problem Statement
+Given two strings: $s1$ and $s2$ with the same size, check if some permutation of string $s1$ can break some permutation of string $s2$ or vice-versa (in other words $s2$ can break $s1$).
+
+A string $x$ can break string $y$ (both of size $n$) if $x_i \ge y_i$ (in alphabetical order) for all $i$ between $0$ and $n-1$.
+
+Both strings are of the same length $n$, and $1 \le n \le 10^5$.
+* Solutions
+Next I'm trying to explain, how I could get to the final solution. But in fact, that's not how it happened. After I read the description, it took me less than a minute to come up with an $n \log n$ solution.
+
+** Brute-force search
+For [[https://en.wikipedia.org/wiki/Brute-force_search][exhaustive search]] we need to generate all permutations of both strings and check if there's a pair of permutations $(A, B)$, where $A$ is a permutation of string $s1$ and $B$ is a permutation of string $s2$, such that $A$ breaks $B$ or $B$ breaks $A$.
+
+At first, let's define a function, that says if a string breaks another string:
+
+#+begin_src python
+def breaks(A, B): return all(a >= b for a, b in zip(A, B))
+#+end_src
+
+#+RESULTS:
+
+#+begin_src shell
+echo $PATH
+#+end_src
+
+#+RESULTS:
+: /run/wrappers/bin:/home/me/.nix-profile/bin:/etc/profiles/per-user/me/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin
+
+The [[https://en.wikipedia.org/wiki/Time_complexity][time complexity]] of this function is $\Theta(n)$.
+
+Python has [[https://docs.python.org/3/library/itertools.html#itertools.permutations][~itertools.permutations~]] function and it makes the bruteforce solution very simple:
+
+#+begin_src python
+from itertools import permutations
+
+def check_if_can_break(s1: str, s2: str) -> bool:
+    return any(breaks(A, B) or breaks(B, A)
+               for A in permutations(s1)
+               for B in permutations(s2))
+#+end_src
+
+~permutations(s1)~ returns a generator that yields tuples (e.g. ~('x', 'y', 'z')~), not strings. But it doesn't matter in our case, as the ~breaks~ function works with any iterables.
+
+What is the time complexity of this solution? To answer this question we need to know the complexity of ~permutations~. Sometimes I forget the answer, but it's very easy to derive it. For instance, if we need to generate all permutations of string ~"xyz"~, we can put 3 different characters at the first position: ~x~, ~y~, or ~z~. When we have the first spot claimed, we are left with 2 characters, for example, ~y~ and ~z~, if we chose ~x~ before. So we put ~y~ or ~z~ on the second spot, and we're left with only 1 character for the last spot. From this we can see, that the total number of permutations of the string ~"xyz"~ is $3 * 2 * 1 = 6$, in other words it's $3!$, and the number of permutations of a string of length $n$ is $n!$.
+
+Now we can find the complexity of the solution. We have two nested loops. Each runs for $n!$ iterations and there's $\Theta(n)$ call to ~breaks~ function in the inner loop. Thus, the complexity is $O(n!n!n) = O(n!^2 n)$. If $n = 10^5$, then the algorithm will take $10^5! 10^5! 10 \approx 8 * 10^{913151}$ operations to finish. That's a lot.
+
+We know that all strings consist of lowercase English letters. Thus we have only 26 different characters in our strings.
+
+How many permutations are there of the string ~"free"~? The formula gives us $4! = 24$. But in fact there are only 12: ~{"free", "fere", "feer", "rfee", "refe", "reef", "efre", "erfe", "eref", "eefr", "eerf", "efer"}~. That formula is only true if all characters in the string are unique. The more general formula looks like this: $\frac{n!}{m_1! m_2! \dots m_{26}!}$, where $m_i$ is the number of an \(i\)-th letter occurences in a string. See [[https://en.wikipedia.org/wiki/Binomial_coefficient#Generalization_to_multinomials][Multinomial coefficients]] for details. So for the string ~"free"~ that gives us $\frac{4!}{2!} = 12$.
+
+What is the worst case, smallest, denominator? It's when we have the equal amount of all letters, i.e. $m_i = \lfloor\frac{n}{26}\rfloor$.
+
+Then the complexity of our solution can potentially be lowered down to (double check me here)
+
+$$O\left(\left(\frac{n!}{\left(\lfloor\frac{n}{26}\rfloor!\right)^{26}}\right)^2 n\right) .$$
+
+For $n = 10^5$ that gives us around $1.5 * 10^{282920}$ operations. Quite an improvement! But still more operations than nanoseconds since the birth of the Universe.
+
+And to get to this complexity we need to generate only unique permutations. There are algorithms for that:
+
+  - [[https://link.springer.com/chapter/10.1007/3-540-46632-0_25][An $O(1)$ Time Algorithm for Generating Multiset Permutations]] by Tadao Takaoka ([[https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.77.6275&rep=rep1&type=pdf][PDF]])
+  - Loopless Generation of Multiset Permutations by Prefix Shifts by Aaron Williams ([[https://pdfs.semanticscholar.org/3dbb/b8ded50b1e78bbe2b569704faca959588682.pdf][PDF]])
+
+References were found on [[https://stackoverflow.com/questions/19676109/how-to-generate-all-the-permutations-of-a-multiset/][StackOverflow]]. There are simpler slower approaches. But in any case, the brute-force search is too slow, even if we'd have ~unique_permutations~ function. We need another approach.
+** Still brute-force
+We may note that if a permutation $a_1 a_2 a_3$ breaks permutation $b_2 b_1 b_3$, then the same is true for permutations $a_2 a_3 a_1$ and $b_1 b_3 b_2$. In other words, we don't really need to find all permutations of /both/ strings. We can use a fixed permutation of one string and then check all permutations of the other string.
+
+#+begin_src python
+def check_if_can_break(s1: str, s2: str) -> bool:
+    return any(breaks(s1, B) or breaks(B, s1)
+               for B in permutations(s2))
+#+end_src
+
+This gets the complexity down to $O(n!n)$, which is still very bad. But it leads us to a better solution. What if we don't just iterate over all permutations of ~s2~, but try to build an appropriate permutation of it directly.
+** Linear complexity
+Let's take two strings, ~s1 = "abc"~ and ~s2 = "xya"~.
+
+First, let's take ~s1~ as is. For the first character ~a~ in this string we need to find some character in the second string such that ~a~ is greater or equal to it. The only choice is ~a~. That leaves us with ~x~ and ~y~, which means we can't find a permutation of ~s2~ which is breakable by ~s1~, because ~b~ is less than either ~x~ or ~y~, and there are no other characters in ~s2~.
+
+Now let's swap the strings and use ~s2~ to break ~s1~: ~x~ is greater than every character of ~s1~, so we can put any of them on the first place in the permutation of ~s1~. But let's be frugal and take the closest one to ~x~, that is ~c~. Then for ~y~ we take ~b~. That leaves us with ~a~ for the last place. And we can see that ~"xya"~ breaks ~"cba"~.
+
+#+begin_src python
+def breakable(A: str, B: str) -> Optional[str]:
+    C = [0]*26
+    L = []
+    for b in B: C[ord(b)-ord('a')] += 1
+    for a in A:
+        for i in range(ord(a)-ord('a'), -1, -1):
+            if C[i]:
+                L.append(chr(ord('a') + i))
+                C[i] -= 1
+                break
+        else:
+            return None
+    return ''.join(L)
+
+def check_if_can_break(s1: str, s2: str) -> bool:
+    return breakable(s1, s2) or breakable(s2, s1)
+#+end_src
+
+The complexity of this solution is $O(26n)$.
+
+[TODO Eliminate 26 constant. Use RB-tree?]
+
+Now, as we noted, if we have a pair of strings $(a, b)$, we can apply to both of them any permutation, and the $\text{breaks}$ relationship between the strings won't be affected. If $a \text{ breaks } b$ before permutation, then $a' \text{ breaks } b'$.
+
+Let's sort string $a$. Then for the first place in the desired permutation of string $b$ we need a character that is less or equal to the "smallest" character of the string $a$. For the second place we need a character that is less or equal to the second "smallest" character of $a$. This reasoning leads us to conclusion, that if we sort both strings, then we can check if some of them breaks the other, and that's it.
+
+#+begin_src python
+def check_if_can_break(self, s1: str, s2: str) -> bool:
+    A, B = sorted(s1), sorted(s2)
+    return breaks(A, B) or breaks(B, A)
+#+end_src
+
+This function's complexity is just $\Theta(2n \log{n} + 2n) = \Theta(n \log{n})$.
+
+Note that $\log_2 100000 \approx 16.6 < 26$, so this solution is faster given the provided limits.
+
+The last solution leads us to another idea. How can we apply the same logic but without sorting? Or better, how could we sort our strings in $O(n)$? Well, remember, that we still have only 26 different elements, and it allows us to use [[https://en.wikipedia.org/wiki/Counting_sort][counting sort]]:
+
+#+begin_src python
+def count(s: str) -> List[int]:
+    C, a = [0]*26, ord('a')
+    for c in s: C[ord(c)-a] += 1
+    return C
+#+end_src
+
+This function returns a list of 26 integers for each letter in the English alphabet. For instance, for word ~"free"~ it would return ~[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]~. Here we see that there are two ~e~'s in the string, one ~f~, and one ~r~.
+
+And we need to write a new version of ~breaks~ function, that works with these lists:
+
+#+begin_src python
+def breaks(A: List[int], B: List[int]) -> bool:
+    s = 0
+    for a, b in zip(A, B):
+        s += a-b
+        if s < 0: return False
+    return True
+#+end_src
+
+And now the solution is basically the same as before:
+
+#+begin_src python
+def check_if_can_break(s1: str, s2: str) -> bool:
+    C1, C2 = count(s1), count(s2)
+    return breaks(C1, C2) or breaks(C2, C1)
+#+end_src
+
+We could also use [[https://docs.python.org/3/library/collections.html#collections.Counter][~collections.Counter~]] to count sort our strings:
+
+#+begin_src python
+from collections import Counter
+from string import ascii_lowercase
+
+def breaks(A: Counter, B: Counter) -> bool:
+    s = 0
+    for c in ascii_lowercase:
+        s += A[c]-B[c]
+        if s < 0: return False
+    return True
+
+def check_if_can_break(s1: str, s2: str) -> bool:
+    C1, C2 = Counter(s1), Counter(s2)
+    return breaks(C1, C2) or breaks(C2, C1)
+#+end_src
+
+** DOING Benchmarks
+   :PROPERTIES:
+   :CREATED:  [2020-05-14 Thu 20:56]
+   :END:
+Before we can benchmark our solutions, we need to generate test cases. We could scrape them from Leetcode (it is possible---you could've seen some fast solutions on Leetcode that are basically an if-else tree, looking up an answer to a predetermined input), but it's a very important skill to come up with good test cases ourselves.
+
+Generally you need to check all corner cases, empty and large inputs.
+
+Use [[https://hypothesis.readthedocs.io/en/latest/][Hypothesis]] to generate test cases?
+
+Use [[https://seaborn.pydata.org/][seaborn]] to plot benchmark results?

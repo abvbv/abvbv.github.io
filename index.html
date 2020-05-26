@@ -6,7 +6,7 @@
       type="application/rss+xml"
       href="./rss.xml"
       title="RSS feed for ./"/>
-<title>abvbv</title>
+<title>Blog</title>
 <meta name="referrer" content="no-referrer">
 <link href="static/sanitize@11.0.0.css" rel="stylesheet" />
 <link href= "static/style.css" rel="stylesheet" type="text/css" />
@@ -22,13 +22,13 @@
 </div></div>
 <div id="content">
 
-<div class="post-date">12 May 2020</div><h1 class="post-title">Leetcode: Check If a String Can Break Another String</h1>
+<div class="post-date">12 May 2020</div><h1 class="post-title"><a href="./leetcode-check-if-a-string-can-break-another-string.html">Leetcode: Check If a String Can Break Another String</a></h1>
 <p>
 In this post we&rsquo;re going to solve a medium Leetcode problem called &ldquo;<a href="https://leetcode.com/problems/check-if-a-string-can-break-another-string/">Check If a String Can Break Another String</a>&rdquo;, number 1433. It&rsquo;s nothing special, I just randomly clicked on a link and got there.
 </p>
-<div id="outline-container-org8505f50" class="outline-2">
-<h2 id="org8505f50">Problem Statement</h2>
-<div class="outline-text-2" id="text-org8505f50">
+<div id="outline-container-orgaf85b60" class="outline-2">
+<h2 id="orgaf85b60">Problem Statement</h2>
+<div class="outline-text-2" id="text-orgaf85b60">
 <p>
 Given two strings: \(s1\) and \(s2\) with the same size, check if some permutation of string \(s1\) can break some permutation of string \(s2\) or vice-versa (in other words \(s2\) can break \(s1\)).
 </p>
@@ -42,17 +42,17 @@ Both strings are of the same length \(n\), and \(1 \le n \le 10^5\).
 </p>
 </div>
 </div>
-<div id="outline-container-org98e3f75" class="outline-2">
-<h2 id="org98e3f75">Solutions</h2>
-<div class="outline-text-2" id="text-org98e3f75">
+<div id="outline-container-org8c5a8d1" class="outline-2">
+<h2 id="org8c5a8d1">Solutions</h2>
+<div class="outline-text-2" id="text-org8c5a8d1">
 <p>
 Next I&rsquo;m trying to explain, how I could get to the final solution. But in fact, that&rsquo;s not how it happened. After I read the description, it took me less than a minute to come up with an \(n \log n\) solution.
 </p>
 </div>
 
-<div id="outline-container-org99b4284" class="outline-3">
-<h3 id="org99b4284">Brute-force search</h3>
-<div class="outline-text-3" id="text-org99b4284">
+<div id="outline-container-orgd9b07d8" class="outline-3">
+<h3 id="orgd9b07d8">Brute-force search</h3>
+<div class="outline-text-3" id="text-orgd9b07d8">
 <p>
 For <a href="https://en.wikipedia.org/wiki/Brute-force_search">exhaustive search</a> we need to generate all permutations of both strings and check if there&rsquo;s a pair of permutations \((A, B)\), where \(A\) is a permutation of string \(s1\) and \(B\) is a permutation of string \(s2\), such that \(A\) breaks \(B\) or \(B\) breaks \(A\).
 </p>
@@ -139,9 +139,9 @@ References were found on <a href="https://stackoverflow.com/questions/19676109/h
 </p>
 </div>
 </div>
-<div id="outline-container-org922967d" class="outline-3">
-<h3 id="org922967d">Still brute-force</h3>
-<div class="outline-text-3" id="text-org922967d">
+<div id="outline-container-org63019d6" class="outline-3">
+<h3 id="org63019d6">Still brute-force</h3>
+<div class="outline-text-3" id="text-org63019d6">
 <p>
 We may note that if a permutation \(a_1 a_2 a_3\) breaks permutation \(b_2 b_1 b_3\), then the same is true for permutations \(a_2 a_3 a_1\) and \(b_1 b_3 b_2\). In other words, we don&rsquo;t really need to find all permutations of <i>both</i> strings. We can use a fixed permutation of one string and then check all permutations of the other string.
 </p>
@@ -158,9 +158,9 @@ This gets the complexity down to \(O(n!n)\), which is still very bad. But it lea
 </p>
 </div>
 </div>
-<div id="outline-container-org5ff963d" class="outline-3">
-<h3 id="org5ff963d">Linear complexity</h3>
-<div class="outline-text-3" id="text-org5ff963d">
+<div id="outline-container-orge3900d9" class="outline-3">
+<h3 id="orge3900d9">Linear complexity</h3>
+<div class="outline-text-3" id="text-orge3900d9">
 <p>
 Let&rsquo;s take two strings, <code>s1 = "abc"</code> and <code>s2 = "xya"</code>.
 </p>
@@ -288,9 +288,9 @@ def check_if_can_break(s1: str, s2: str) -&gt; bool:
 </div>
 </div>
 
-<div id="outline-container-org3dc5719" class="outline-3">
-<h3 id="org3dc5719"><span class="todo DOING">DOING</span> Benchmarks</h3>
-<div class="outline-text-3" id="text-org3dc5719">
+<div id="outline-container-org00e3f50" class="outline-3">
+<h3 id="org00e3f50"><span class="todo DOING">DOING</span> Benchmarks</h3>
+<div class="outline-text-3" id="text-org00e3f50">
 <p>
 Before we can benchmark our solutions, we need to generate test cases. We could scrape them from Leetcode (it is possible&#x2014;you could&rsquo;ve seen some fast solutions on Leetcode that are basically an if-else tree, looking up an answer to a predetermined input), but it&rsquo;s a very important skill to come up with good test cases ourselves.
 </p>
@@ -309,7 +309,7 @@ Use <a href="https://seaborn.pydata.org/">seaborn</a> to plot benchmark results?
 </div>
 </div>
 </div>
-<div class="taglist"><a href="./tags.html">Tags</a>: <a href="./tag-leetcode.html">leetcode</a> <a href="./tag-medium.html">medium</a> </div><div id="archive">
+<div class="taglist"><a href="./tags.html">Tags</a>: <a href="./tag-leetcode.html">leetcode</a> <a href="./tag-python.html">python</a> <a href="./tag-permutations.html">permutations</a> </div><div id="archive">
 <a href="./archive.html">Other posts</a>
 </div>
 </div>

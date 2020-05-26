@@ -1,0 +1,7 @@
+#+html_doctype: html5
+#+title: Seaborn Notes
+#+date: <2020-05-18 Mon 18:45>
+#+filetags: python
+I want to write several posts on solving various Leetcode problems. There I need to benchmark different solutions. And then I need to plot results of those benchmarks. My fellow programmer recommended me to check out Seaborn library, that's based on the venerable matplotlib.
+
+* "Hello, world"
