@@ -1,0 +1,62 @@
+#content {
+    background: #fff;
+    padding-top: 3ch;
+    max-width: 70ch;
+    margin: 0 auto;
+}
+code {
+    color: #d14;
+}
+pre {
+    padding: 1ch;
+    border-radius: 3px 3px 3px 3px;
+    background-color: #f5f5f5;
+    white-space: pre;
+    white-space: pre-wrap;
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+body {
+    padding: 10px;
+}
+@media (min-width: 768px) {
+    /* Increase body padding and font-sizes */
+    body {
+        padding: 40px;
+        font-size: 18px;
+        line-height: 1.75;
+    }
+    h1:before, h2:before, h3:before {
+        display: inline;
+    }
+}
+
+@media (min-width: 1024px) {
+    body {
+        padding: 40px;
+    }
+}
+
+
+/* /\* Define org todo faces *\/ */
+.TODO {
+   color: red;
+}
+
+.DOING {
+   color: orange;
+}
+
+.DONE {
+   color: green;
+}
+
+.CANCELLED {
+   color: gray;
+}
+
+/* indent items*/
+/* .org-ul { */
+   /* margin-right: 10px; */
+/* } */

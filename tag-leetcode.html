@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="alternate"
+      type="application/rss+xml"
+      href="./rss.xml"
+      title="RSS feed for ./"/>
+<title>Blog</title>
+<meta name="referrer" content="no-referrer">
+<link href="static/sanitize@11.0.0.css" rel="stylesheet" />
+<link href= "static/style.css" rel="stylesheet" type="text/css" />
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"
+        onload="renderMathInElement(document.body);"></script>
+
+<link rel="icon" href="static/favicon.ico"></head>
+<body>
+<div id="preamble" class="status"><div class="header">
+</div></div>
+<div id="content">
+<h1 class="title">Posts tagged "leetcode":</h1>
+<div class="post-date">12 May 2020</div><h1 class="post-title">Leetcode: Check If a String Can Break Another String</h1>
+<p>
+In this post we&rsquo;re going to solve a medium Leetcode problem called &ldquo;<a href="https://leetcode.com/problems/check-if-a-string-can-break-another-string/">Check If a String Can Break Another String</a>&rdquo;, number 1433. It&rsquo;s nothing special, I just randomly clicked on a link and got there.
+</p>
+<div id="outline-container-org8505f50" class="outline-2">
+<h2 id="org8505f50">Problem Statement</h2>
+<div class="outline-text-2" id="text-org8505f50">
+<p>
+Given two strings: \(s1\) and \(s2\) with the same size, check if some permutation of string \(s1\) can break some permutation of string \(s2\) or vice-versa (in other words \(s2\) can break \(s1\)).
+</p>
+
+<p>
+A string \(x\) can break string \(y\) (both of size \(n\)) if \(x_i \ge y_i\) (in alphabetical order) for all \(i\) between \(0\) and \(n-1\).
+</p>
+
+<p>
+Both strings are of the same length \(n\), and \(1 \le n \le 10^5\).
+</p>
+</div>
+</div>
+<div id="outline-container-org98e3f75" class="outline-2">
+<h2 id="org98e3f75">Solutions</h2>
+<div class="outline-text-2" id="text-org98e3f75">
+<p>
+Next I&rsquo;m trying to explain, how I could get to the final solution. But in fact, that&rsquo;s not how it happened. After I read the description, it took me less than a minute to come up with an \(n \log n\) solution.
+</p>
+</div>
+
+<div id="outline-container-org99b4284" class="outline-3">
+<h3 id="org99b4284">Brute-force search</h3>
+<div class="outline-text-3" id="text-org99b4284">
+<p>
+For <a href="https://en.wikipedia.org/wiki/Brute-force_search">exhaustive search</a> we need to generate all permutations of both strings and check if there&rsquo;s a pair of permutations \((A, B)\), where \(A\) is a permutation of string \(s1\) and \(B\) is a permutation of string \(s2\), such that \(A\) breaks \(B\) or \(B\) breaks \(A\).
+</p>
+
+<p>
+At first, let&rsquo;s define a function, that says if a string breaks another string:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def breaks(A, B): return all(a &gt;= b for a, b in zip(A, B))
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-shell">echo $PATH
+</pre>
+</div>
+
+<p>
+The <a href="https://en.wikipedia.org/wiki/Time_complexity">time complexity</a> of this function is \(\Theta(n)\).
+</p>
+
+<p>
+Python has <a href="https://docs.python.org/3/library/itertools.html#itertools.permutations"><code>itertools.permutations</code></a> function and it makes the bruteforce solution very simple:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">from itertools import permutations
+
+def check_if_can_break(s1: str, s2: str) -&gt; bool:
+    return any(breaks(A, B) or breaks(B, A)
+               for A in permutations(s1)
+               for B in permutations(s2))
+</pre>
+</div>
+
+<p>
+<code>permutations(s1)</code> returns a generator that yields tuples (e.g. <code>('x', 'y', 'z')</code>), not strings. But it doesn&rsquo;t matter in our case, as the <code>breaks</code> function works with any iterables.
+</p>
+
+<p>
+What is the time complexity of this solution? To answer this question we need to know the complexity of <code>permutations</code>. Sometimes I forget the answer, but it&rsquo;s very easy to derive it. For instance, if we need to generate all permutations of string <code>"xyz"</code>, we can put 3 different characters at the first position: <code>x</code>, <code>y</code>, or <code>z</code>. When we have the first spot claimed, we are left with 2 characters, for example, <code>y</code> and <code>z</code>, if we chose <code>x</code> before. So we put <code>y</code> or <code>z</code> on the second spot, and we&rsquo;re left with only 1 character for the last spot. From this we can see, that the total number of permutations of the string <code>"xyz"</code> is \(3 * 2 * 1 = 6\), in other words it&rsquo;s \(3!\), and the number of permutations of a string of length \(n\) is \(n!\).
+</p>
+
+<p>
+Now we can find the complexity of the solution. We have two nested loops. Each runs for \(n!\) iterations and there&rsquo;s \(\Theta(n)\) call to <code>breaks</code> function in the inner loop. Thus, the complexity is \(O(n!n!n) = O(n!^2 n)\). If \(n = 10^5\), then the algorithm will take \(10^5! 10^5! 10 \approx 8 * 10^{913151}\) operations to finish. That&rsquo;s a lot.
+</p>
+
+<p>
+We know that all strings consist of lowercase English letters. Thus we have only 26 different characters in our strings.
+</p>
+
+<p>
+How many permutations are there of the string <code>"free"</code>? The formula gives us \(4! = 24\). But in fact there are only 12: <code>{"free", "fere", "feer", "rfee", "refe", "reef", "efre", "erfe", "eref", "eefr", "eerf", "efer"}</code>. That formula is only true if all characters in the string are unique. The more general formula looks like this: \(\frac{n!}{m_1! m_2! \dots m_{26}!}\), where \(m_i\) is the number of an \(i\)-th letter occurences in a string. See <a href="https://en.wikipedia.org/wiki/Binomial_coefficient#Generalization_to_multinomials">Multinomial coefficients</a> for details. So for the string <code>"free"</code> that gives us \(\frac{4!}{2!} = 12\).
+</p>
+
+<p>
+What is the worst case, smallest, denominator? It&rsquo;s when we have the equal amount of all letters, i.e. \(m_i = \lfloor\frac{n}{26}\rfloor\).
+</p>
+
+<p>
+Then the complexity of our solution can potentially be lowered down to (double check me here)
+</p>
+
+<p>
+\[O\left(\left(\frac{n!}{\left(\lfloor\frac{n}{26}\rfloor!\right)^{26}}\right)^2 n\right) .\]
+</p>
+
+<p>
+For \(n = 10^5\) that gives us around \(1.5 * 10^{282920}\) operations. Quite an improvement! But still more operations than nanoseconds since the birth of the Universe.
+</p>
+
+<p>
+And to get to this complexity we need to generate only unique permutations. There are algorithms for that:
+</p>
+
+<ul class="org-ul">
+<li><a href="https://link.springer.com/chapter/10.1007/3-540-46632-0_25">An \(O(1)\) Time Algorithm for Generating Multiset Permutations</a> by Tadao Takaoka (<a href="https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.77.6275&amp;rep=rep1&amp;type=pdf">PDF</a>)</li>
+<li>Loopless Generation of Multiset Permutations by Prefix Shifts by Aaron Williams (<a href="https://pdfs.semanticscholar.org/3dbb/b8ded50b1e78bbe2b569704faca959588682.pdf">PDF</a>)</li>
+</ul>
+
+<p>
+References were found on <a href="https://stackoverflow.com/questions/19676109/how-to-generate-all-the-permutations-of-a-multiset/">StackOverflow</a>. There are simpler slower approaches. But in any case, the brute-force search is too slow, even if we&rsquo;d have <code>unique_permutations</code> function. We need another approach.
+</p>
+</div>
+</div>
+<div id="outline-container-org922967d" class="outline-3">
+<h3 id="org922967d">Still brute-force</h3>
+<div class="outline-text-3" id="text-org922967d">
+<p>
+We may note that if a permutation \(a_1 a_2 a_3\) breaks permutation \(b_2 b_1 b_3\), then the same is true for permutations \(a_2 a_3 a_1\) and \(b_1 b_3 b_2\). In other words, we don&rsquo;t really need to find all permutations of <i>both</i> strings. We can use a fixed permutation of one string and then check all permutations of the other string.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def check_if_can_break(s1: str, s2: str) -&gt; bool:
+    return any(breaks(s1, B) or breaks(B, s1)
+               for B in permutations(s2))
+</pre>
+</div>
+
+<p>
+This gets the complexity down to \(O(n!n)\), which is still very bad. But it leads us to a better solution. What if we don&rsquo;t just iterate over all permutations of <code>s2</code>, but try to build an appropriate permutation of it directly.
+</p>
+</div>
+</div>
+<div id="outline-container-org5ff963d" class="outline-3">
+<h3 id="org5ff963d">Linear complexity</h3>
+<div class="outline-text-3" id="text-org5ff963d">
+<p>
+Let&rsquo;s take two strings, <code>s1 = "abc"</code> and <code>s2 = "xya"</code>.
+</p>
+
+<p>
+First, let&rsquo;s take <code>s1</code> as is. For the first character <code>a</code> in this string we need to find some character in the second string such that <code>a</code> is greater or equal to it. The only choice is <code>a</code>. That leaves us with <code>x</code> and <code>y</code>, which means we can&rsquo;t find a permutation of <code>s2</code> which is breakable by <code>s1</code>, because <code>b</code> is less than either <code>x</code> or <code>y</code>, and there are no other characters in <code>s2</code>.
+</p>
+
+<p>
+Now let&rsquo;s swap the strings and use <code>s2</code> to break <code>s1</code>: <code>x</code> is greater than every character of <code>s1</code>, so we can put any of them on the first place in the permutation of <code>s1</code>. But let&rsquo;s be frugal and take the closest one to <code>x</code>, that is <code>c</code>. Then for <code>y</code> we take <code>b</code>. That leaves us with <code>a</code> for the last place. And we can see that <code>"xya"</code> breaks <code>"cba"</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def breakable(A: str, B: str) -&gt; Optional[str]:
+    C = [0]*26
+    L = []
+    for b in B: C[ord(b)-ord('a')] += 1
+    for a in A:
+        for i in range(ord(a)-ord('a'), -1, -1):
+            if C[i]:
+                L.append(chr(ord('a') + i))
+                C[i] -= 1
+                break
+        else:
+            return None
+    return ''.join(L)
+
+def check_if_can_break(s1: str, s2: str) -&gt; bool:
+    return breakable(s1, s2) or breakable(s2, s1)
+</pre>
+</div>
+
+<p>
+The complexity of this solution is \(O(26n)\).
+</p>
+
+<p>
+[TODO Eliminate 26 constant. Use RB-tree?]
+</p>
+
+<p>
+Now, as we noted, if we have a pair of strings \((a, b)\), we can apply to both of them any permutation, and the \(\text{breaks}\) relationship between the strings won&rsquo;t be affected. If \(a \text{ breaks } b\) before permutation, then \(a' \text{ breaks } b'\).
+</p>
+
+<p>
+Let&rsquo;s sort string \(a\). Then for the first place in the desired permutation of string \(b\) we need a character that is less or equal to the &ldquo;smallest&rdquo; character of the string \(a\). For the second place we need a character that is less or equal to the second &ldquo;smallest&rdquo; character of \(a\). This reasoning leads us to conclusion, that if we sort both strings, then we can check if some of them breaks the other, and that&rsquo;s it.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def check_if_can_break(self, s1: str, s2: str) -&gt; bool:
+    A, B = sorted(s1), sorted(s2)
+    return breaks(A, B) or breaks(B, A)
+</pre>
+</div>
+
+<p>
+This function&rsquo;s complexity is just \(\Theta(2n \log{n} + 2n) = \Theta(n \log{n})\).
+</p>
+
+<p>
+Note that \(\log_2 100000 \approx 16.6 < 26\), so this solution is faster given the provided limits.
+</p>
+
+<p>
+The last solution leads us to another idea. How can we apply the same logic but without sorting? Or better, how could we sort our strings in \(O(n)\)? Well, remember, that we still have only 26 different elements, and it allows us to use <a href="https://en.wikipedia.org/wiki/Counting_sort">counting sort</a>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def count(s: str) -&gt; List[int]:
+    C, a = [0]*26, ord('a')
+    for c in s: C[ord(c)-a] += 1
+    return C
+</pre>
+</div>
+
+<p>
+This function returns a list of 26 integers for each letter in the English alphabet. For instance, for word <code>"free"</code> it would return <code>[0, 0, 0, 0, 2, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]</code>. Here we see that there are two <code>e</code>&rsquo;s in the string, one <code>f</code>, and one <code>r</code>.
+</p>
+
+<p>
+And we need to write a new version of <code>breaks</code> function, that works with these lists:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def breaks(A: List[int], B: List[int]) -&gt; bool:
+    s = 0
+    for a, b in zip(A, B):
+        s += a-b
+        if s &lt; 0: return False
+    return True
+</pre>
+</div>
+
+<p>
+And now the solution is basically the same as before:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">def check_if_can_break(s1: str, s2: str) -&gt; bool:
+    C1, C2 = count(s1), count(s2)
+    return breaks(C1, C2) or breaks(C2, C1)
+</pre>
+</div>
+
+<p>
+We could also use <a href="https://docs.python.org/3/library/collections.html#collections.Counter"><code>collections.Counter</code></a> to count sort our strings:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">from collections import Counter
+from string import ascii_lowercase
+
+def breaks(A: Counter, B: Counter) -&gt; bool:
+    s = 0
+    for c in ascii_lowercase:
+        s += A[c]-B[c]
+        if s &lt; 0: return False
+    return True
+
+def check_if_can_break(s1: str, s2: str) -&gt; bool:
+    C1, C2 = Counter(s1), Counter(s2)
+    return breaks(C1, C2) or breaks(C2, C1)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-org3dc5719" class="outline-3">
+<h3 id="org3dc5719"><span class="todo DOING">DOING</span> Benchmarks</h3>
+<div class="outline-text-3" id="text-org3dc5719">
+<p>
+Before we can benchmark our solutions, we need to generate test cases. We could scrape them from Leetcode (it is possible&#x2014;you could&rsquo;ve seen some fast solutions on Leetcode that are basically an if-else tree, looking up an answer to a predetermined input), but it&rsquo;s a very important skill to come up with good test cases ourselves.
+</p>
+
+<p>
+Generally you need to check all corner cases, empty and large inputs.
+</p>
+
+<p>
+Use <a href="https://hypothesis.readthedocs.io/en/latest/">Hypothesis</a> to generate test cases?
+</p>
+
+<p>
+Use <a href="https://seaborn.pydata.org/">seaborn</a> to plot benchmark results?
+</p>
+</div>
+</div>
+</div>
+<div class="taglist"><a href="./tags.html">Tags</a>: <a href="./tag-leetcode.html">leetcode</a> <a href="./tag-medium.html">medium</a> </div><div id="archive">
+<a href="./archive.html">Other posts</a>
+</div>
+</div>
+<div id="postamble" class="status"><div id="archive">
+</div></div>
+</body>
+</html>
